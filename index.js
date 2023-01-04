@@ -4,6 +4,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const stripe = require("stripe")("sk_test_51M6TOhLZ8s0yewmCKIERlWDqgmuV0dUPMcqr6t68lquLbV9ES0l7wH2zsYyXgZUjwvvhxFeUujmMHDWRGVOZnxSM00E1Hd7kmq");
 const port = process.env.PORT || 5000;
 
 app.use(cors());
@@ -42,12 +43,113 @@ app.post('/user/jwt', (req, res) => {
     // console.log(user)
 })
 
+app.post("/payment/intent", async (req, res) => {
+    // console.log('hit')
+    try {
+        const { amount } = req.body
+        const amou = amount * 100
+        const paymentIntent = await stripe.paymentIntents.create({
+            currency: 'usd',
+            amount: amou,
+            "payment_method_types": [
+                "card"
+            ]
+        })
+        // console.log(paymentIntent)
+        res.send({
+            success: true,
+            message: 'Successfully stripe payment created',
+            clientSecret: paymentIntent.client_secret
+        })
+    } catch (error) {
+        console.log(error)
+        res.send({
+            success: false,
+            error: error.message
+        })
+    }
+})
+
+
+
 async function run() {
     try {
         const usersCollection = client.db("find_a_job").collection("users");
 
         // other site data 
         const dataUsersCollection = client.db("OldMarket").collection("usersCollection");
+
+        // currency data fetch
+        const currencyCollection = client.db("find_a_job").collection("currency");
+        const jobsCollection = client.db("find_a_job").collection("jobsCollection");
+
+        app.get('/currency', async (req, res) => {
+            const query = {}
+            const currency = await currencyCollection.find(query).toArray()
+            res.send(currency);
+        })
+
+
+
+
+
+        // This is for Find Job 
+
+
+
+
+        app.post('/jobs', async (req, res) => {
+            console.log(req.body);
+            const jobInfo = req.body;
+            const result = await jobsCollection.insertOne(jobInfo);
+            res.send(result)
+        })
+
+        app.get('/jobs', async (req, res) => {
+            const jobstype = req.query.jobstype;
+            const result = await jobsCollection.find({}).toArray();
+            console.log(jobstype);
+            if (jobstype === "all") {
+                res.send(result)
+            }
+            else {
+                const filterData = result.filter(job => job.job_details.job.job_title.toLowerCase().includes(jobstype.toLowerCase()))
+                // console.log(filterData);
+                res.send(filterData)
+            }
+        })
+
+        app.post('/jobs/exp', async (req, res) => {
+            const checkItem = req.body;
+            const result = await jobsCollection.find({}).toArray();
+            console.log(checkItem);
+
+            const filterData = result.filter(job => {
+                let filData = checkItem.forEach(item => item.toLowerCase() === job.job_details.experience.toLowerCase())
+                console.log(filData);
+                return filData
+            })
+            // console.log(filterData);
+            // res.send(filterData)
+
+            // for (const exp of checkItem) {
+            //     let filterData = result.filter(job => {
+            //         job.job_details.experience === exp;
+            //     }
+            //     )
+            console.log(filterData);
+
+            // }
+        })
+
+
+
+
+
+
+
+        // this is for user 
+
 
 
         // this is user create api 
