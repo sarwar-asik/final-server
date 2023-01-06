@@ -144,7 +144,11 @@ async function run() {
 
 
 
-
+        app.get('/jobDetails/:id', (req, res) => {
+            console.log("hit koreche");
+            const id = req.params.id;
+            console.log(id);
+        })
 
 
 
