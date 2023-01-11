@@ -148,6 +148,7 @@ async function run() {
             console.log("hit koreche");
             const id = req.params.id;
             console.log(id);
+            res.send('ghjghj')
         })
 
 
