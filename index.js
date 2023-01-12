@@ -144,12 +144,13 @@ async function run() {
 
 
 
-        app.get('/jobDetails/:id', (req, res) => {
-            console.log("hit koreche");
+        app.get('/jobDetails/:id', async (req, res) => {
             const id = req.params.id;
-            console.log(id);
-            res.send('ghjghj')
+            const job = await jobsCollection.findOne({ _id: ObjectId(id) })
+            res.send(job)
         })
+
+
 
 
 
