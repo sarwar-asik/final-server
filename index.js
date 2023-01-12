@@ -83,6 +83,20 @@ async function run() {
         const currencyCollection = client.db("find_a_job").collection("currency");
         const jobsCollection = client.db("find_a_job").collection("jobsCollection");
 
+
+        // get current user to update subscribetion status
+        app.put("/users/subscribe/:email", async(req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const option = {upsert: true};
+            const updatedUser = {
+                $set: {
+                    isSubscibed: true
+                }
+            }
+            const result = await usersCollection.updateOne(filter, updatedUser, option)
+            res.send({ message: "subscription completed", data: result})
+        })
         app.get('/currency', async (req, res) => {
             const query = {}
             const currency = await currencyCollection.find(query).toArray()
