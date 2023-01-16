@@ -85,17 +85,17 @@ async function run() {
 
 
         // get current user to update subscribetion status
-        app.put("/users/subscribe/:email", async(req, res) => {
+        app.put("/users/subscribe/:email", async (req, res) => {
             const email = req.params.email;
             const filter = { email: email };
-            const option = {upsert: true};
+            const option = { upsert: true };
             const updatedUser = {
                 $set: {
                     isSubscibed: true
                 }
             }
             const result = await usersCollection.updateOne(filter, updatedUser, option)
-            res.send({ message: "subscription completed", data: result})
+            res.send({ message: "subscription completed", data: result })
         })
         app.get('/currency', async (req, res) => {
             const query = {}
@@ -127,7 +127,7 @@ async function run() {
                 res.send(result)
             }
             else {
-                const filterData = result.filter(job => job.job_details.job.job_title.toLowerCase().includes(jobstype.toLowerCase()))
+                const filterData = result.filter(job => job.job_details.job.job_title.toLowerCase().includes(jobstype))
                 // console.log(filterData);
                 res.send(filterData)
             }
@@ -160,6 +160,7 @@ async function run() {
 
         app.get('/jobDetails/:id', async (req, res) => {
             const id = req.params.id;
+            console.log(id)
             const job = await jobsCollection.findOne({ _id: ObjectId(id) })
             res.send(job)
         })
@@ -194,6 +195,8 @@ async function run() {
             // console.log(user)
             res.json(userType);
         })
+
+
     }
     finally {
 
