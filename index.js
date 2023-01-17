@@ -5,7 +5,7 @@ const app = express();
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const stripe = require("stripe")("sk_test_51M6TOhLZ8s0yewmCKIERlWDqgmuV0dUPMcqr6t68lquLbV9ES0l7wH2zsYyXgZUjwvvhxFeUujmMHDWRGVOZnxSM00E1Hd7kmq");
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5001;
 
 app.use(cors());
 app.use(express.json());
@@ -14,10 +14,11 @@ app.use(express.json());
 app.get('/', async (req, res) => {
     res.send('Find A Job server is running')
 })
-
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.bbbtstv.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.rybmrby.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+const uri2 = `mongodb+srv://${process.env.DB_USER2}:${process.env.DB_PASSWORD2}@cluster0.bbbtstv.mongodb.net/?retryWrites=true&w=majority`;
+const client2 = new MongoClient(uri2, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 function verifyJWT(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -74,28 +75,28 @@ app.post("/payment/intent", async (req, res) => {
 
 async function run() {
     try {
-        const usersCollection = client.db("find_a_job").collection("users");
+        const usersCollection = client2.db("find_a_job").collection("users");
 
-        // other site data 
-        const dataUsersCollection = client.db("OldMarket").collection("usersCollection");
 
         // currency data fetch
-        const currencyCollection = client.db("find_a_job").collection("currency");
-        const jobsCollection = client.db("find_a_job").collection("jobsCollection");
+        const currencyCollection = client2.db("find_a_job").collection("currency");
+        const jobsCollection = client2.db("find_a_job").collection("jobsCollection");
 
+
+        // const profile = client.db("find_a_job").collection("jobsCollection");
 
         // get current user to update subscribetion status
-        app.put("/users/subscribe/:email", async(req, res) => {
+        app.put("/users/subscribe/:email", async (req, res) => {
             const email = req.params.email;
             const filter = { email: email };
-            const option = {upsert: true};
+            const option = { upsert: true };
             const updatedUser = {
                 $set: {
                     isSubscibed: true
                 }
             }
             const result = await usersCollection.updateOne(filter, updatedUser, option)
-            res.send({ message: "subscription completed", data: result})
+            res.send({ message: "subscription completed", data: result })
         })
         app.get('/currency', async (req, res) => {
             const query = {}
