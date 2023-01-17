@@ -128,7 +128,7 @@ async function run() {
                 res.send(result)
             }
             else {
-                const filterData = result.filter(job => job.job_details.job.job_title.toLowerCase().includes(jobstype.toLowerCase()))
+                const filterData = result.filter(job => job.job_details.job.job_title.toLowerCase().includes(jobstype))
                 // console.log(filterData);
                 res.send(filterData)
             }
@@ -161,6 +161,7 @@ async function run() {
 
         app.get('/jobDetails/:id', async (req, res) => {
             const id = req.params.id;
+            console.log(id)
             const job = await jobsCollection.findOne({ _id: ObjectId(id) })
             res.send(job)
         })
@@ -195,6 +196,8 @@ async function run() {
             // console.log(user)
             res.json(userType);
         })
+
+
     }
     finally {
 
